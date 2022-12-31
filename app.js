@@ -4,41 +4,64 @@ const { Todo } = require("./models");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
-// eslint-disable-next-line
-app.get("/todos", (req, res) => {
-  //   res.send("Hello world");
-  console.log("Todo list");
+app.get("/", function (request, response) {
+  response.send("Hello World");
 });
 
-app.post("/todos", async (req, res) => {
-  console.log("Creating a todo", req.body);
+app.get("/todos", async function (request, response) {
+  console.log("Processing list of all Todos ...");
+  const todos = await Todo.findAll();
+  return response.send(todos);
+});
+
+app.get("/todos/:id", async function (request, response) {
   try {
-    const { title, dueDate } = req.body;
-    const todo = await Todo.addTodo({ title, dueDate, completed: false });
-    return res.json(todo);
+    const todo = await Todo.findByPk(request.params.id);
+    return response.json(todo);
   } catch (error) {
-    console.error(error);
-    // Unprocessable entity
-    return res.status(422).json({ error });
+    console.log(error);
+    return response.status(422).json(error);
   }
 });
 
-app.put("/todos/:id/markAsCompleted", async (req, res) => {
-  console.log("Update todo with id:", req.params.id);
+app.post("/todos", async function (request, response) {
   try {
-    const todo = await Todo.findByPk(req.params.id);
+    const todo = await Todo.addTodo(request.body);
+    return response.json(todo);
+  } catch (error) {
+    console.log(error);
+    return response.status(422).json(error);
+  }
+});
+
+app.put("/todos/:id/markAsCompleted", async function (request, response) {
+  const todo = await Todo.findByPk(request.params.id);
+  try {
     const updatedTodo = await todo.markAsCompleted();
-    return res.json(updatedTodo);
+    return response.json(updatedTodo);
   } catch (error) {
-    console.error(error);
-    // Unprocessable entity
-    return res.status(422).json({ error });
+    console.log(error);
+    return response.status(422).json(error);
   }
 });
 
-// eslint-disable-next-line
-app.delete("/todos/:id", (req, res) => {
-  console.log("Delete todo with id:", req.params.id);
+app.delete("/todos/:id", async function (request, response) {
+  console.log("We have to delete a Todo with ID: ", request.params.id);
+  try {
+    const todoId = Number(request.params.id);
+
+    const doesTodoExist = await Todo.findByPk(todoId);
+
+    if (!todoId || doesTodoExist === null) {
+      return response.status(404).send(false);
+    } else {
+      await Todo.destroy({ where: { id: todoId } });
+      return response.send(true);
+    }
+  } catch (error) {
+    console.log(error);
+    return response.status(422).send(false);
+  }
 });
 
 module.exports = app;
