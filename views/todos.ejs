@@ -1,7 +1,7 @@
 <div>
   <div class="flex items-center gap-1">
     <h5>Overdue</h5>
-    <div class="px-2 bg-gray-100 rounded"><%= overdueTodos.length %></div>
+    <div id="count-overdue" class="px-2 bg-gray-100 rounded"><%= overdueTodos.length %></div>
   </div>
   <ul class="list-none">
     <% for(let i = 0; i < overdueTodos.length; ++i){ %>
@@ -20,7 +20,7 @@
   </ul>
   <div class="flex items-center gap-1 pt-4">
     <h5>Due Today</h5>
-    <div class="px-2 bg-gray-100 rounded"><%= dueTodayTodos.length %></div>
+    <div id="count-due-today" class="px-2 bg-gray-100 rounded"><%= dueTodayTodos.length %></div>
   </div>
   <ul class="list-none">
     <% for(let i = 0; i < dueTodayTodos.length; ++i){ %>
@@ -39,7 +39,7 @@
   </ul>
   <div class="flex items-center gap-1 pt-4">
     <h5>Due Later</h5>
-    <div class="px-2 bg-gray-100 rounded"><%= dueLaterTodos.length %></div>
+    <div id="count-due-later" class="px-2 bg-gray-100 rounded"><%= dueLaterTodos.length %></div>
   </div>
   <ul class="list-none">
     <% for(let i = 0; i < dueLaterTodos.length; ++i){ %>
