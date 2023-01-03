@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const csurf = require("csurf");
+const csurf = require("tiny-csrf");
 const cookieParser = require("cookie-parser");
 const { Todo } = require("./models");
 
@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("some secret string"));
-app.use(csurf({ cookie: true }));
+app.use(csurf("123456789iamasecret987654321look", ["POST", "PUT", "DELETE"]));
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
