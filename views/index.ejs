@@ -25,7 +25,11 @@
             </div>
           </div>
         </form>
-        <%- include('todos.ejs') %>
+        <div>
+          <%- include('todos.ejs', {title: "Overdue", data: overdueTodos}) %>
+          <%- include('todos.ejs', {title: "Due Today", data: dueTodayTodos}) %>
+          <%- include('todos.ejs', {title: "Due Later", data: dueLaterTodos}) %>
+        </div>
       </div>
     </div>
   </body>
