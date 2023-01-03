@@ -69,7 +69,7 @@ app.delete("/todos/:id", async function (request, response) {
     if (!todoId || doesTodoExist === null) {
       return response.status(404).send(false);
     } else {
-      await Todo.destroy({ where: { id: todoId } });
+      await Todo.remove(todoId);
       return response.send(true);
     }
   } catch (error) {
