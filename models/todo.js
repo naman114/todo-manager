@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Todo extends Model {
     /**
@@ -20,60 +20,33 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static async overdue() {
-      try {
-        let todos = await Todo.findAll({});
-
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-
-        todos = todos.filter((todo) => {
-          const dueDate = new Date(todo.dueDate);
-          dueDate.setHours(0, 0, 0, 0);
-          return now.valueOf() > dueDate.valueOf();
-        });
-
-        return todos;
-      } catch (error) {
-        console.error(error);
-      }
+      return this.findAll({
+        where: {
+          dueDate: {
+            [Op.lt]: new Date(),
+          },
+        },
+      });
     }
 
     static async dueToday() {
-      try {
-        let todos = await Todo.findAll({});
-
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-
-        todos = todos.filter((todo) => {
-          const dueDate = new Date(todo.dueDate);
-          dueDate.setHours(0, 0, 0, 0);
-          return now.valueOf() === dueDate.valueOf();
-        });
-
-        return todos;
-      } catch (error) {
-        console.error(error);
-      }
+      return this.findAll({
+        where: {
+          dueDate: {
+            [Op.eq]: new Date(),
+          },
+        },
+      });
     }
 
     static async dueLater() {
-      try {
-        let todos = await Todo.findAll({});
-
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-
-        todos = todos.filter((todo) => {
-          const dueDate = new Date(todo.dueDate);
-          dueDate.setHours(0, 0, 0, 0);
-          return now.valueOf() < dueDate.valueOf();
-        });
-
-        return todos;
-      } catch (error) {
-        console.error(error);
-      }
+      return this.findAll({
+        where: {
+          dueDate: {
+            [Op.gt]: new Date(),
+          },
+        },
+      });
     }
 
     markAsCompleted() {
