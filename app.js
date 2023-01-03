@@ -1,24 +1,32 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const csurf = require("csurf");
+const cookieParser = require("cookie-parser");
 const { Todo } = require("./models");
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser("some secret string"));
+app.use(csurf({ cookie: true }));
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", async function (request, response) {
-  const allTodos = await Todo.getTodos();
   const overdueTodos = await Todo.overdue();
   const dueTodayTodos = await Todo.dueToday();
   const dueLaterTodos = await Todo.dueLater();
   if (request.accepts("html")) {
-    response.render("index", { overdueTodos, dueTodayTodos, dueLaterTodos });
+    response.render("index", {
+      overdueTodos,
+      dueTodayTodos,
+      dueLaterTodos,
+      csrfToken: request.csrfToken(),
+    });
   } else {
-    response.json({ allTodos });
+    response.json({ overdueTodos, dueTodayTodos, dueLaterTodos });
   }
 });
 
