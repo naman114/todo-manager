@@ -19,6 +19,63 @@ module.exports = (sequelize, DataTypes) => {
       return this.findAll();
     }
 
+    static async overdue() {
+      try {
+        let todos = await Todo.findAll({});
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        todos = todos.filter((todo) => {
+          const dueDate = new Date(todo.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          return now.valueOf() > dueDate.valueOf();
+        });
+
+        return todos;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    static async dueToday() {
+      try {
+        let todos = await Todo.findAll({});
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        todos = todos.filter((todo) => {
+          const dueDate = new Date(todo.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          return now.valueOf() === dueDate.valueOf();
+        });
+
+        return todos;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    static async dueLater() {
+      try {
+        let todos = await Todo.findAll({});
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        todos = todos.filter((todo) => {
+          const dueDate = new Date(todo.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          return now.valueOf() < dueDate.valueOf();
+        });
+
+        return todos;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     markAsCompleted() {
       return this.update({ completed: true });
     }
