@@ -10,11 +10,11 @@
     <title>Todo Manager</title>
     <script>
       const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      function updateTodo(id) {
-        fetch(`/todos/${id}/markAsCompleted`, {
+      function updateTodo(id, completed) {
+        fetch(`/todos/${id}`, {
           method: "put",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({"_csrf": token})
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ completed, "_csrf": token })
         })
         .then((res) => {
           if(res.ok)
@@ -48,7 +48,7 @@
               <input type="text" name="title" placeholder="What's next?" class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm" required>
             </div>
             <div class="flex-auto">
-              <input type="date" name="dueDate" class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm">
+              <input required type="date" name="dueDate" class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm">
             </div>
             <div class="flex-none">
               <button type="submit" class="bg-green-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Add</button>
@@ -59,6 +59,7 @@
           <%- include('todos.ejs', {title: "Overdue", data: overdueTodos}) %>
           <%- include('todos.ejs', {title: "Due Today", data: dueTodayTodos}) %>
           <%- include('todos.ejs', {title: "Due Later", data: dueLaterTodos}) %>
+          <%- include('todos.ejs', {title: "Completed Items", data: completedTodos}) %>
         </div>
       </div>
     </div>

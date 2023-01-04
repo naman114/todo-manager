@@ -18,11 +18,14 @@ app.get("/", async function (request, response) {
   const overdueTodos = await Todo.overdue();
   const dueTodayTodos = await Todo.dueToday();
   const dueLaterTodos = await Todo.dueLater();
+  const completedTodos = await Todo.completedItems();
   if (request.accepts("html")) {
+    response.set("Cache-Control", "no-store");
     response.render("index", {
       overdueTodos,
       dueTodayTodos,
       dueLaterTodos,
+      completedTodos,
       csrfToken: request.csrfToken(),
     });
   } else {
@@ -48,18 +51,23 @@ app.get("/todos/:id", async function (request, response) {
 
 app.post("/todos", async function (request, response) {
   try {
-    await Todo.addTodo(request.body);
-    return response.redirect("/");
+    const todo = await Todo.addTodo(request.body);
+    if (request.accepts("html")) {
+      return response.redirect("/");
+    } else {
+      return response.json(todo);
+    }
   } catch (error) {
     console.log(error);
     return response.status(422).json(error);
   }
 });
 
-app.put("/todos/:id/markAsCompleted", async function (request, response) {
+app.put("/todos/:id", async function (request, response) {
   const todo = await Todo.findByPk(request.params.id);
+  const { completed } = request.body;
   try {
-    const updatedTodo = await todo.markAsCompleted();
+    const updatedTodo = await todo.setCompletionStatus(completed);
     return response.json(updatedTodo);
   } catch (error) {
     console.log(error);
