@@ -10,10 +10,11 @@ const session = require("express-session");
 const LocalStrategy = require("passport-local");
 const flash = require("connect-flash");
 const bcrypt = require("bcrypt");
-const SALT_ROUNDS = 10;
 
 const { Todo, User } = require("./models");
 const generateSequelizeErrorMessage = require("./utils/generateErrorMessage");
+
+const SALT_ROUNDS = 10;
 
 const app = express();
 app.use(bodyParser.json());
