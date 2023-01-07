@@ -222,7 +222,10 @@ app.put(
     const todo = await Todo.findByPk(request.params.id);
     const { completed } = request.body;
     try {
-      const updatedTodo = await todo.setCompletionStatus(completed);
+      const updatedTodo = await todo.setCompletionStatus(
+        completed,
+        request.user.id
+      );
       return response.json(updatedTodo);
     } catch (error) {
       console.log(error);
