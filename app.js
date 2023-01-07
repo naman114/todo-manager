@@ -8,7 +8,7 @@ const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
-
+const flash = require("connect-flash");
 const bcrypt = require("bcrypt");
 const SALT_ROUNDS = 10;
 
@@ -22,6 +22,7 @@ app.use(csurf("123456789iamasecret987654321look", ["POST", "PUT", "DELETE"]));
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
+app.set("views", path.join(__dirname, "views"));
 
 app.use(
   session({
@@ -34,6 +35,12 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
+
+app.use(function (request, response, next) {
+  response.locals.messages = request.flash();
+  next();
+});
 
 passport.use(
   new LocalStrategy(
@@ -48,7 +55,7 @@ passport.use(
           if (result) {
             return done(null, user);
           } else {
-            return done("invalid password");
+            return done(null, false, { message: "Invalid password" });
           }
         })
         .catch((error) => {
@@ -114,7 +121,10 @@ app.get("/login", (request, response) => {
 
 app.post(
   "/session",
-  passport.authenticate("local", { failureRedirect: "/login" }),
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
   (request, response) => {
     console.log(request.user);
     response.redirect("/todos");
