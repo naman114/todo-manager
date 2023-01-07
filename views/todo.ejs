@@ -57,10 +57,10 @@
           </div>
         </form>
         <div>
-          <%- include('todos.ejs', {title: "Overdue", data: overdueTodos}) %>
-          <%- include('todos.ejs', {title: "Due Today", data: dueTodayTodos}) %>
-          <%- include('todos.ejs', {title: "Due Later", data: dueLaterTodos}) %>
-          <%- include('todos.ejs', {title: "Completed Items", data: completedTodos}) %>
+          <%- include('todoSection.ejs', {title: "Overdue", data: overdueTodos}) %>
+          <%- include('todoSection.ejs', {title: "Due Today", data: dueTodayTodos}) %>
+          <%- include('todoSection.ejs', {title: "Due Later", data: dueLaterTodos}) %>
+          <%- include('todoSection.ejs', {title: "Completed Items", data: completedTodos}) %>
         </div>
       </div>
     </div>

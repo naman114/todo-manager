@@ -13,6 +13,7 @@ const bcrypt = require("bcrypt");
 const SALT_ROUNDS = 10;
 
 const { Todo, User } = require("./models");
+const generateSequelizeErrorMessage = require("./utils/generateErrorMessage");
 
 const app = express();
 app.use(bodyParser.json());
@@ -110,8 +111,18 @@ app.post("/users", async (request, response) => {
       }
       response.redirect("/todos");
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(JSON.stringify(err));
+    const errorMessages =
+      err.name === "SequelizeValidationError" &&
+      err.errors.map((sequelizeValidationError) =>
+        generateSequelizeErrorMessage(
+          sequelizeValidationError.path,
+          sequelizeValidationError.validatorKey
+        )
+      );
+    request.flash("error", errorMessages);
+    response.redirect("/signup");
   }
 });
 
