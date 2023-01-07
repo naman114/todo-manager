@@ -112,7 +112,6 @@ app.post("/users", async (request, response) => {
       response.redirect("/todos");
     });
   } catch (err) {
-    console.log(JSON.stringify(err));
     const errorMessages =
       err.name === "SequelizeValidationError" &&
       err.errors.map((sequelizeValidationError) =>
@@ -208,9 +207,22 @@ app.post(
       } else {
         return response.json(todo);
       }
-    } catch (error) {
-      console.log(error);
-      return response.status(422).json(error);
+    } catch (err) {
+      if (request.accepts("html")) {
+        const errorMessages =
+          err.name === "SequelizeValidationError" &&
+          err.errors.map((sequelizeValidationError) =>
+            generateSequelizeErrorMessage(
+              sequelizeValidationError.path,
+              sequelizeValidationError.validatorKey,
+              { minLength: 5 }
+            )
+          );
+        request.flash("error", errorMessages);
+        return response.redirect("/todos");
+      } else {
+        return response.status(422).json(err);
+      }
     }
   }
 );
