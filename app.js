@@ -107,30 +107,37 @@ app.get("/signup", (request, response) => {
 
 app.post("/users", async (request, response) => {
   const { firstName, lastName, email, password } = request.body;
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-  try {
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-    });
-    request.login(user, (err) => {
-      if (err) {
-        console.log(err);
-      }
-      response.redirect("/todos");
-    });
-  } catch (err) {
-    console.log(err);
-    const errorMessages = err.errors.map((sequelizeValidationError) =>
-      generateSequelizeErrorMessage(
-        sequelizeValidationError.path,
-        sequelizeValidationError.validatorKey
-      )
-    );
-    request.flash("error", errorMessages);
+
+  if (password.length < 8) {
+    request.flash("error", "Password must be 8 characters");
     response.redirect("/signup");
+  } else {
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    try {
+      const user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+      });
+      request.login(user, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        response.redirect("/todos");
+      });
+    } catch (err) {
+      console.log(err);
+      const errorMessages = err.errors.map((sequelizeValidationError) =>
+        generateSequelizeErrorMessage(
+          sequelizeValidationError.path,
+          sequelizeValidationError.validatorKey,
+          { minLength: 8 }
+        )
+      );
+      request.flash("error", errorMessages);
+      response.redirect("/signup");
+    }
   }
 });
 
@@ -223,6 +230,7 @@ app.post(
       }
     } catch (err) {
       if (request.accepts("html")) {
+        console.log(err);
         const errorMessages = err.errors.map((sequelizeValidationError) =>
           generateSequelizeErrorMessage(
             sequelizeValidationError.path,
