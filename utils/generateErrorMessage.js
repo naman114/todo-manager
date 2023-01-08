@@ -8,8 +8,10 @@ const generateSequelizeErrorMessage = (field, errorType, args = {}) => {
       return `Field ${field} should have minimum length of ${args.minLength}`;
     case "isDate":
       return `Please enter a valid date for field ${field}`;
+    case "not_unique":
+      return `Record with same ${field} already exists`;
     default:
-      return `Please enter a valid value for field ${field}`;
+      return `Validation error`;
   }
 };
 

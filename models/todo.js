@@ -76,10 +76,11 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     setCompletionStatus(completionStatus, userId) {
-      return this.update(
-        { completed: completionStatus },
-        { where: { userId } }
-      );
+      if (this.userId === userId) {
+        return this.update({ completed: completionStatus });
+      } else {
+        throw new Error("Unauthorized");
+      }
     }
   }
   Todo.init(

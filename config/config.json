@@ -11,7 +11,8 @@
     "password": "27o2^gxu8rbb!&EuqAJu",
     "database": "wd_todo_test",
     "host": "127.0.0.1",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "logging": false
   },
   "production": {
     "use_env_variable": "DATABASE_URL",

@@ -41,7 +41,10 @@
     <div class="mt-4 grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs') %>
-        <a href="/signout">Signout</a>
+        <div class="flex items-center gap-4">
+          <p>Welcome, <%= username %></p>
+          <a class="p-1 rounded bg-blue-400 text-white text-sm" href="/signout">Signout</a>
+        </div>
         <form action="/todos" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <div class="flex gap-2 py-4">
@@ -57,11 +60,9 @@
           </div>
         </form>
         <% if(messages && messages.error && messages.error.length > 0)  { %>
-          <ul class="mb-2">
-            <% for(var i=0; i<messages.error.length; i++) { %>
-              <li class="text-red-500"> <%= messages.error[i] %></li>
-              <% } %>
-          </ul>
+          <% for(var i=0; i<messages.error.length; i++) { %>
+            <div class="p-2 text-center text-white bg-red-400 rounded mb-1"> <%= messages.error[i] %></div>
+            <% } %>
         <% } %>
         <div>
           <%- include('todoSection.ejs', {title: "Overdue", data: overdueTodos}) %>

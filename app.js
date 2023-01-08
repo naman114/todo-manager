@@ -53,6 +53,10 @@ passport.use(
     (username, password, done) => {
       User.findOne({ where: { email: username } })
         .then(async (user) => {
+          if (!user)
+            return done(null, false, {
+              message: "User with provided email does not exist",
+            });
           const result = await bcrypt.compare(password, user.password);
           if (result) {
             return done(null, user);
@@ -61,6 +65,7 @@ passport.use(
           }
         })
         .catch((error) => {
+          console.log(error);
           return error;
         });
     }
@@ -83,10 +88,14 @@ passport.deserializeUser((id, done) => {
 });
 
 app.get("/", async function (request, response) {
-  response.render("index", {
-    title: "Todo application",
-    csrfToken: request.csrfToken(),
-  });
+  if (request.user) {
+    response.redirect("/todos");
+  } else {
+    response.render("index", {
+      title: "Todo application",
+      csrfToken: request.csrfToken(),
+    });
+  }
 });
 
 app.get("/signup", (request, response) => {
@@ -113,14 +122,13 @@ app.post("/users", async (request, response) => {
       response.redirect("/todos");
     });
   } catch (err) {
-    const errorMessages =
-      err.name === "SequelizeValidationError" &&
-      err.errors.map((sequelizeValidationError) =>
-        generateSequelizeErrorMessage(
-          sequelizeValidationError.path,
-          sequelizeValidationError.validatorKey
-        )
-      );
+    console.log(err);
+    const errorMessages = err.errors.map((sequelizeValidationError) =>
+      generateSequelizeErrorMessage(
+        sequelizeValidationError.path,
+        sequelizeValidationError.validatorKey
+      )
+    );
     request.flash("error", errorMessages);
     response.redirect("/signup");
   }
@@ -137,7 +145,7 @@ app.post(
     failureFlash: true,
   }),
   (request, response) => {
-    console.log(request.user);
+    // console.log(request.user);
     response.redirect("/todos");
   }
 );
@@ -161,6 +169,10 @@ app.get(
     const dueTodayTodos = await Todo.dueToday(loggedInUser);
     const dueLaterTodos = await Todo.dueLater(loggedInUser);
     const completedTodos = await Todo.completedItems(loggedInUser);
+
+    const user = await User.findByPk(loggedInUser);
+    const username = `${user.firstName} ${user.lastName}`.trim();
+
     if (request.accepts("html")) {
       response.set("Cache-Control", "no-store");
       response.render("todo", {
@@ -169,6 +181,7 @@ app.get(
         dueTodayTodos,
         dueLaterTodos,
         completedTodos,
+        username,
         csrfToken: request.csrfToken(),
       });
     } else {
@@ -196,7 +209,7 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
     const { title, dueDate } = request.body;
-    console.log(request.user);
+    // console.log(request.user);
     try {
       const todo = await Todo.addTodo({
         title,
@@ -210,15 +223,13 @@ app.post(
       }
     } catch (err) {
       if (request.accepts("html")) {
-        const errorMessages =
-          err.name === "SequelizeValidationError" &&
-          err.errors.map((sequelizeValidationError) =>
-            generateSequelizeErrorMessage(
-              sequelizeValidationError.path,
-              sequelizeValidationError.validatorKey,
-              { minLength: 5 }
-            )
-          );
+        const errorMessages = err.errors.map((sequelizeValidationError) =>
+          generateSequelizeErrorMessage(
+            sequelizeValidationError.path,
+            sequelizeValidationError.validatorKey,
+            { minLength: 5 }
+          )
+        );
         request.flash("error", errorMessages);
         return response.redirect("/todos");
       } else {
